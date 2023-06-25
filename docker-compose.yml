@@ -1,0 +1,33 @@
+version: '3'
+services:
+  redis:
+    image: 'docker.io/bitnami/redis:6.0-debian-10'
+    container_name: redis-test
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis:/bitnami/redis/data
+    networks:
+      - my-network
+
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
+    depends_on:
+      - redis
+    networks:
+      - my-network
+    ports:
+      - '8080:8080' # Port mapping for go-app service
+
+volumes:
+  redis:
+
+networks:
+  my-network:
+    driver: bridge
